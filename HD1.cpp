@@ -427,12 +427,11 @@ int main()
                 vector<string> user_info;
                 while (line.find(",") != string::npos)
                 {
-                    user_infos.push_back(line.substr(0, line.find(",")));
+                    user_info.push_back(line.substr(0, line.find(",")));
                     line = line.substr(line.find(",") + 1);
                 }
-                user_infos.push_back(line);
-                PersonalityProfile csv = PersonalityProfile(user_info[NAME], user_info[PERSONALITY], user_info[TEMPERAMENT], 
-                    user_info[TAROT_CARD], user_info[COMMENT]);
+                user_info.push_back(line);
+                PersonalityProfile csv = PersonalityProfile(user_info[NAME], user_info[PERSONALITY], user_info[TEMPERAMENT], user_info[TAROT_CARD], user_info[COMMENT]);
                 user_map.insert({user_info[NAME], csv});
             }
             ReadFile.close();
