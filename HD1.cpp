@@ -59,7 +59,7 @@ enum temperament_enum
 // Info structure
 struct PersonalityProfile
 {
-    string name, personality, temperament, tarot_card, most_compatible, least_compatible;
+    string name, personality, temperament, tarot_card, most_compatible, least_compatible, comment;
     temperament_enum num_temperament;
 
     PersonalityProfile()
@@ -70,6 +70,7 @@ struct PersonalityProfile
         tarot_card = "";
         most_compatible = "";
         least_compatible = "";
+        comment = "";
         num_temperament = SJ;
     }
 };
@@ -336,6 +337,16 @@ void display_splashkit_tarot(const PersonalityProfile &profile)
     refresh_screen();
 }
 
+// Comment function
+void comment(PersonalityProfile &profile)
+{
+    write("Your comment about the results (You can enter to skip this part): ");
+    profile.comment = read_line();
+    write_line();
+    write_line("Thank you for taking the test!");
+    write_line();
+}
+
 // Menu options
 enum menu_option
 {
@@ -408,9 +419,8 @@ int main()
     personality_calculating(user);
     tarot_calculating(user);
     display_splashkit_tarot(user);
+    comment(user);
     user_list.push_back(user);
-    write_line("Thank you for taking the test!");
-    write_line();
     do
     {
         write_line("What would you like to do next?");
@@ -431,6 +441,7 @@ int main()
             personality_calculating(new_user);
             tarot_calculating(new_user);
             display_splashkit_tarot(new_user);
+            comment(new_user);
             user_list.push_back(new_user);
             break;
         }
@@ -444,7 +455,7 @@ int main()
             int index = 0;
             if (search != "")
             {
-                index = read_integer("Enter the index of the name you want to see his/her result: ") - 1;
+                index = read_integer("Enter the index of the name you want to see his/her result (You can enter others' availble index): ") - 1;
             }
             if (index >= 0 && index < user_list.size())
             {
@@ -452,11 +463,12 @@ int main()
                 write_line("Personality: " + user_list[index].personality);
                 write_line("Temperament: " + user_list[index].temperament);
                 write_line("Tarot Card: " + user_list[index].tarot_card);
+                write_line("Comment: " + user_list[index].comment);
                 write_line();
             }
             else
             {
-                write_line("not a valid value.");
+                write_line("Please enter a valid index.");
             }
             break;
         }
@@ -477,7 +489,7 @@ int main()
         write_line("Personality: " + user.personality);
         write_line("Temperament: " + user.temperament);
         write_line("Tarot Card: " + user.tarot_card);
+        write_line("Comment: " + user.comment);
     }
-    
     return 0;
 }
