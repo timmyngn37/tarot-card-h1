@@ -4,8 +4,6 @@
 #include <vector>
 // for input validation and output display
 #include <regex>
-// for reading and writing files
-#include <fstream>
 
 // namespace std for standard library functions
 using namespace std;
