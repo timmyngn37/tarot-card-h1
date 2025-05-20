@@ -8,3 +8,5 @@ This project draws inspiration from the MBTI personality test and the Tarot Ride
 **UPDATE VERSION**
 
 19/05/2025 - Uploading original files on GitHub.
+
+20/05/2025 - Adding the new feature - Writing and Reading the CSV File.

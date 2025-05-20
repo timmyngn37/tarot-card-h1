@@ -4,6 +4,11 @@
 #include <vector>
 // for input validation and output display
 #include <regex>
+// for reading and writing files
+#include <iostream>
+#include <fstream>
+// for mapping user names to their profiles
+#include <unordered_map>
 
 // namespace std for standard library functions
 using namespace std;
@@ -73,6 +78,14 @@ struct PersonalityProfile
         comment = "";
         num_temperament = SJ;
     }
+    PersonalityProfile(string name, string personality, string temperament, string tarot_card, string comment)
+    {
+        this->name = name;
+        this->personality = personality;
+        this->temperament = temperament;
+        this->tarot_card = tarot_card;
+        this->comment = comment;
+    }
 };
 
 // User name input
@@ -129,8 +142,8 @@ vector<Question> TF_questions = {
     {"What bothers you more?", "being misunderstood", "being misrepresented"}};
 vector<Question> JP_questions = {
     {"Do you prefer to work:", "to given strict deadlines", "just whenever you feel like it"},
-    {"In phoning, do you: ", "rarely question that it will all be said", "rehearse what you will say"},
-    {"Do you put more value on:", "infinity", "open-mindedness"}};
+    {"In phoning, do you: ", "trust the conversation will flow naturally", "plan and rehearse what you will say"},
+    {"Do you put more value on:", "following endless possibilities", "keeping an open mind"}};
 vector<Question> EI_questions = {
     {"At a party do you:", "interact with many, including strangers", "interact with a few, known to you"},
     {"In collaborating, do you:", "initiate conversation", "wait to be approached"},
@@ -355,72 +368,23 @@ enum menu_option
     EXIT,
 };
 
-// Find functions
-bool contain_string(string name, string search) // check the match between the product's name and the search term.
+// Components of user to store
+enum user_component
 {
-    // lowercase to avoid case-sensitive situations.
-    string lower_name = to_lowercase(name);
-    string lower_search = to_lowercase(search);
-    // bear the similarity between two terms.
-    for (int i = 0; i <= (length_of(name) - length_of(search)); i++) // limit the number of loops when comparing two terms (with the length of name has to be longer than that of search).
-    {
-        bool match = true;
-        for (int j = 0; j < length_of(search); j++) // compare each component of the search term.
-        {
-            if (lower_name[i + j] != lower_search[j]) // check if there is any same combination of characters in search. (with i gets its iteration sooner than j does).
-            {
-                match = false;
-                break;
-            }
-        }
-        if (match)
-            return true;
-    }
-    return false;
-}
-void name_search(vector<PersonalityProfile> &user_list, const string &search) // search the products' name that matches with the search term.
-{
-    bool not_match = true;
-    write_line("Search list:");
-    for (int i = 0; i < user_list.size(); i++)
-    {
-        if (search == "")
-        {
-            write_line("No search term entered.");
-            not_match = true;
-            break;
-        }
-        else if (contain_string(user_list[i].name, search)) // if yes, print the products' name.
-        {
-            write_line(to_string(i + 1) + ": " + user_list[i].name);
-            not_match = false;
-        }
-    }
-    if (not_match)
-    {
-        write_line("No matches, showing all options.");
-        for (int i = 0; i < user_list.size(); i++)
-        {
-            write_line(to_string(i + 1) + " " + user_list[i].name);
-        }
-    }
-}
+    NAME,
+    PERSONALITY,
+    TEMPERAMENT,
+    TAROT_CARD,
+    COMMENT,
+};
 
 // Main function
 int main()
 {
+    ofstream WriteFile("user_list.csv", ios::app);
     menu_option option = ADD;
     int number = 0;
-    PersonalityProfile user;
-    vector<PersonalityProfile> user_list = {};
-    user_name(user);
-    write_line();
-    write_line("Welcome to the Personality Test!");
-    personality_calculating(user);
-    tarot_calculating(user);
-    display_splashkit_tarot(user);
-    comment(user);
-    user_list.push_back(user);
+    vector<PersonalityProfile> user_list;
     do
     {
         write_line("What would you like to do next?");
@@ -435,40 +399,56 @@ int main()
         case ADD:
         {
             PersonalityProfile new_user;
+            write_line("Welcome to the Personality Test!");
+            write_line();
             user_name(new_user);
-            write_line("Starting test for new user...");
             write_line();
             personality_calculating(new_user);
             tarot_calculating(new_user);
             display_splashkit_tarot(new_user);
             comment(new_user);
             user_list.push_back(new_user);
+            for (PersonalityProfile user : user_list)
+            {
+                WriteFile << user.name << "," << user.personality << "," << user.temperament << "," << user.tarot_card << "," << user.comment << endl;
+            }
             break;
         }
         case FIND:
         {
-            string search;
             write("Please enter the name of the user you want to find: ");
-            search = read_line();
+            string search = read_line();
             write_line();
-            name_search(user_list, search);
-            int index = 0;
-            if (search != "")
+            unordered_map<string, PersonalityProfile> user_map;
+            string line;
+            ifstream ReadFile("user_list.csv");
+            while (getline(ReadFile, line))
             {
-                index = read_integer("Enter the index of the name you want to see his/her result (You can enter others' availble index): ") - 1;
+                vector<string> user_info;
+                while (line.find(",") != string::npos)
+                {
+                    user_info.push_back(line.substr(0, line.find(",")));
+                    line = line.substr(line.find(",") + 1);
+                }
+                user_info.push_back(line);
+                PersonalityProfile csv = PersonalityProfile(user_info[NAME], user_info[PERSONALITY], user_info[TEMPERAMENT], user_info[TAROT_CARD], user_info[COMMENT]);
+                user_map.insert({user_info[NAME], csv});
             }
-            if (index >= 0 && index < user_list.size())
+            ReadFile.close();
+            if (user_map.find(search) == user_map.end())
             {
-                write_line("User: " + user_list[index].name);
-                write_line("Personality: " + user_list[index].personality);
-                write_line("Temperament: " + user_list[index].temperament);
-                write_line("Tarot Card: " + user_list[index].tarot_card);
-                write_line("Comment: " + user_list[index].comment);
+                write_line("User not found.");
                 write_line();
+                break;
             }
             else
             {
-                write_line("Please enter a valid index.");
+                write_line("User: " + user_map[search].name);
+                write_line("Personality: " + user_map[search].personality);
+                write_line("Temperament: " + user_map[search].temperament);
+                write_line("Tarot Card: " + user_map[search].tarot_card);
+                write_line("Comment: " + user_map[search].comment);
+                write_line();
             }
             break;
         }
@@ -480,16 +460,6 @@ int main()
             break;
         }
     } while (option != EXIT);
-    write_line();
-    write_line("Here are the results of all users:");
-    for (PersonalityProfile user : user_list)
-    {
-        write_line("--------------------------");
-        write_line("User: " + user.name);
-        write_line("Personality: " + user.personality);
-        write_line("Temperament: " + user.temperament);
-        write_line("Tarot Card: " + user.tarot_card);
-        write_line("Comment: " + user.comment);
-    }
+    WriteFile.close();
     return 0;
 }
