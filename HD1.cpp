@@ -408,10 +408,7 @@ int main()
             display_splashkit_tarot(new_user);
             comment(new_user);
             user_list.push_back(new_user);
-            for (PersonalityProfile user : user_list)
-            {
-                WriteFile << user.name << "," << user.personality << "," << user.temperament << "," << user.tarot_card << "," << user.comment << endl;
-            }
+            WriteFile << user.name << "," << user.personality << "," << user.temperament << "," << user.tarot_card << "," << user.comment << endl;
             break;
         }
         case FIND:
