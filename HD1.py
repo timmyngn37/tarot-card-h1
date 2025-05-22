@@ -49,9 +49,11 @@ axes[1,0].set_title('Sentiment Score Distribution')
 axes[1,0].set_xlabel('Sentiment Score')
 axes[1,0].set_ylabel('Density')
 
+# plot how sentiment scores vary across different personality types. 
 sns.scatterplot(data = data, x = 'Personality', y = 'Sentiment Score', ax = axes[1,1], hue = 'Sentiment')
 axes[1,1].set_title('Sentiment Score by Personality')
 
-fig.suptitle("The Results", fontsize=16)
+# adjust the layout
+fig.suptitle("The Results")
 plt.tight_layout()
 plt.show()
