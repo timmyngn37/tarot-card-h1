@@ -9,6 +9,9 @@
 #include <fstream>
 // for mapping user names to their profiles
 #include <unordered_map>
+// for embedding python
+#define PY_SSIZE_T_CLEAN
+#include </usr/include/python3.12/Python.h>
 
 // namespace std for standard library functions
 using namespace std;
@@ -379,7 +382,7 @@ enum user_component
 };
 
 // Main function
-int main()
+int main(int argc, char *argv[])
 {
     ofstream WriteFile("user_list.csv", ios::app);
     menu_option option = ADD;
@@ -476,5 +479,47 @@ int main()
             break;
         }
     } while (option != EXIT);
+    // embedding python
+    write_line();
+    write_line("Showing statistics...");
+    FILE *fp = nullptr;
+
+    PyStatus status;
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
+    
+    status = PyConfig_SetBytesString(&config, &config.program_name, argv[0]);
+    if (PyStatus_Exception(status))
+    {
+        goto exception;
+    }
+
+    status = Py_InitializeFromConfig(&config);
+    if (PyStatus_Exception(status))
+    {
+        goto exception;
+    }
+    PyConfig_Clear(&config);
+
+    fp = fopen("HD1.py", "r");
+    if (fp != nullptr)
+    {
+        PyRun_SimpleFile(fp, "HD1.py");
+        fclose(fp);
+    }
+    else
+    {
+        goto exception;
+    }
+
+    if (Py_FinalizeEx() < 0)
+    {
+        exit(120);
+    }
+    return 0;
+
+exception:
+    PyConfig_Clear(&config);
+    Py_ExitStatusException(status);
     return 0;
 }
