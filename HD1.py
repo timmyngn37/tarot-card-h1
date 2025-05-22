@@ -37,7 +37,7 @@ fig, axes = plt.subplots(1, 2, figsize = (8,4))
 axes[0].pie(sentiment_counts, labels = sentiment_counts.index, autopct = '%1.1f%%')
 axes[0].set_title('Sentiment Distribution')
 
-sns.kdeplot(data = data, x = 'Sentiment Score', fill = True, ax=axes[1])
+sns.kdeplot(data = data, x = 'Sentiment Score', fill = True, ax = axes[1])
 axes[1].set_title('Sentiment Score Distribution')
 axes[1].set_xlabel('Sentiment Score')
 axes[1].set_ylabel('Density')
