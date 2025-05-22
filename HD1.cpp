@@ -408,7 +408,14 @@ int main()
             display_splashkit_tarot(new_user);
             comment(new_user);
             user_list.push_back(new_user);
-            WriteFile << new_user.name << "," << new_user.personality << "," << new_user.temperament << "," << new_user.tarot_card << "," << new_user.comment << endl;
+            if (WriteFile.is_open())
+            {
+                WriteFile << new_user.name << "," << new_user.personality << "," << new_user.temperament << "," << new_user.tarot_card << "," << new_user.comment << endl;
+            }
+            else
+            {
+                write_line("Unable to open the file!");
+            }
             break;
         }
         case FIND:
@@ -416,22 +423,29 @@ int main()
             write("Please enter the name of the user you want to find: ");
             string search = read_line();
             write_line();
-            unordered_map<string, PersonalityProfile> user_map;
+            unordered_map<string, vector<PersonalityProfile>> user_map;
             string line;
             ifstream ReadFile("user_list.csv");
-            while (getline(ReadFile, line))
+            if (ReadFile.is_open())
             {
-                vector<string> user_info;
-                while (line.find(",") != string::npos)
+                while (getline(ReadFile, line))
                 {
-                    user_info.push_back(line.substr(0, line.find(",")));
-                    line = line.substr(line.find(",") + 1);
+                    vector<string> user_info;
+                    while (line.find(",") != string::npos)
+                    {
+                        user_info.push_back(line.substr(0, line.find(",")));
+                        line = line.substr(line.find(",") + 1);
+                    }
+                    user_info.push_back(line);
+                    PersonalityProfile csv(user_info[NAME], user_info[PERSONALITY], user_info[TEMPERAMENT], user_info[TAROT_CARD], user_info[COMMENT]);
+                    user_map[user_info[NAME]].push_back(csv);
                 }
-                user_info.push_back(line);
-                PersonalityProfile csv = PersonalityProfile(user_info[NAME], user_info[PERSONALITY], user_info[TEMPERAMENT], user_info[TAROT_CARD], user_info[COMMENT]);
-                user_map.insert({user_info[NAME], csv});
+                ReadFile.close();
             }
-            ReadFile.close();
+            else
+            {
+                write_line("Unable to open the file!");
+            }
             if (user_map.find(search) == user_map.end())
             {
                 write_line("User not found.");
@@ -440,12 +454,17 @@ int main()
             }
             else
             {
-                write_line("User: " + user_map[search].name);
-                write_line("Personality: " + user_map[search].personality);
-                write_line("Temperament: " + user_map[search].temperament);
-                write_line("Tarot Card: " + user_map[search].tarot_card);
-                write_line("Comment: " + user_map[search].comment);
-                write_line();
+                const vector<PersonalityProfile> found_user = user_map[search];
+                write_line("Found " + to_string(found_user.size()) + " user(s) with the name " + search + "!");
+                for (const PersonalityProfile user : found_user)
+                {
+                    write_line("User: " + user.name);
+                    write_line("Personality: " + user.personality);
+                    write_line("Temperament: " + user.temperament);
+                    write_line("Tarot Card: " + user.tarot_card);
+                    write_line("Comment: " + user.comment);
+                    write_line();
+                }
             }
             break;
         }
@@ -457,6 +476,5 @@ int main()
             break;
         }
     } while (option != EXIT);
-    WriteFile.close();
     return 0;
 }
