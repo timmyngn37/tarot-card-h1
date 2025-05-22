@@ -16,7 +16,12 @@
 // namespace std for standard library functions
 using namespace std;
 
-// Integer validation
+/**
+ * Validate an integer
+ *
+ * @param prompt the message to show the user
+ * @returns the integer entered
+ */
 int read_integer(string prompt)
 {
     write(prompt);
@@ -30,7 +35,12 @@ int read_integer(string prompt)
     return stoi(line);
 }
 
-// Function to remove non-ASCII characters and trailing spaces
+/**
+ * Removing non-ASCII characters and trailing spaces
+ *
+ * @param text the original text that has not been refined
+ * @returns the text removed emojis and trimmed trailing whitespace
+ */
 string regex_remove(string text)
 {
     string refined = regex_replace(text, regex(R"([^\x00-\x7F])"), "");
@@ -38,15 +48,13 @@ string regex_remove(string text)
     return final;
 }
 
-// Personality traits
+// Personality Traits and Tarots
 const string PERSONALITY_TRAIT[6] = {"S", "N", "T", "F", "J", "P"};
 const string TAROT[4][2] = {
     {"The Hanged Man ⏳", "The Hermit 🕯️"},
     {"The Chariot 🐎", "Strength 🦁"},
     {"The Lovers 💖", "The High Priestess 🔮"},
     {"The Magician ✨", "The Emperor 👑"}};
-
-// Enum for personality traits
 enum personality_trait_enum
 {
     S,
@@ -64,7 +72,7 @@ enum temperament_enum
     NT
 };
 
-// Info structure
+// Field of information
 struct PersonalityProfile
 {
     string name, personality, temperament, tarot_card, most_compatible, least_compatible, comment;
@@ -90,8 +98,20 @@ struct PersonalityProfile
         this->comment = comment;
     }
 };
+enum user_component
+{
+    NAME,
+    PERSONALITY,
+    TEMPERAMENT,
+    TAROT_CARD,
+    COMMENT,
+};
 
-// User name input
+/**
+ * Validate a user's name which contains no numbers
+ *
+ * @param profile the user's information
+ */
 void user_name(PersonalityProfile &profile)
 {
     write("Please enter your name: ");
@@ -104,7 +124,7 @@ void user_name(PersonalityProfile &profile)
     }
 }
 
-// Question structure
+// Question and Score structure
 struct Question
 {
     string question;
@@ -152,6 +172,11 @@ vector<Question> EI_questions = {
     {"In collaborating, do you:", "initiate conversation", "wait to be approached"},
     {"Which type of song best describes you:", "an upbeat song that gets you moving", "a calm song that you can reflect to"}};
 
+/**
+ * Counting an user's options
+ *
+ * @param score the user's answer (a or b)
+ */
 void answering(TraitScore &score)
 {
     string answer;
@@ -178,14 +203,23 @@ void answering(TraitScore &score)
     } while (true);
 }
 
-// Function for calculating the results
+/**
+ * General way to calculate the percentage
+ *
+ * @param score the total number of each answer (a or b)
+ */
 void calculating(TraitScore &score)
 {
     score.percentage_a = (double)score.ans_a / score.total * 100;
     score.percentage_b = (double)score.ans_b / score.total * 100;
 }
 
-// Questionnaire function
+/**
+ * Display the questions and Calculating the percentages based on the user's answers
+ *
+ * @param questionnaires the questions, the a options and the b options
+ * @param score the percentage of each answer (a or b)
+ */
 void question(const vector<Question> &questionnaires, TraitScore &score)
 {
     for (int i = 0; i < questionnaires.size(); i++)
@@ -199,7 +233,11 @@ void question(const vector<Question> &questionnaires, TraitScore &score)
     calculating(score);
 }
 
-// Determining SJ, SP, NF or NT
+/**
+ * Defining SJ, SP, NF or NT with string
+ *
+ * @param profile the user's personality and temperament
+ */
 void personality_calculating(PersonalityProfile &profile)
 {
     TraitScore SN, TF, JP;
@@ -248,7 +286,11 @@ void personality_calculating(PersonalityProfile &profile)
     write_line();
 }
 
-// Compatibility function
+/**
+ * Determining the most and least compatibility of one temperament
+ *
+ * @param profile the user's personality and temperament
+ */
 void compatibility(PersonalityProfile &profile)
 {
     if (profile.num_temperament == SJ)
@@ -273,7 +315,11 @@ void compatibility(PersonalityProfile &profile)
     }
 }
 
-// Tarot card calculation
+/**
+ * From one's personality, defining a Tarot card with the EI question bank
+ *
+ * @param profile the user's Tarot card
+ */
 void tarot_calculating(PersonalityProfile &profile)
 {
     TraitScore EI;
@@ -293,7 +339,11 @@ void tarot_calculating(PersonalityProfile &profile)
     compatibility(profile);
 }
 
-// Function to display the tarot card using splashkit
+/**
+ * Display the GUI
+ *
+ * @param profile the user's information
+ */
 void display_splashkit_tarot(const PersonalityProfile &profile)
 {
     const int SCREEN_WIDTH = 1600;
@@ -353,7 +403,11 @@ void display_splashkit_tarot(const PersonalityProfile &profile)
     refresh_screen();
 }
 
-// Comment function
+/**
+ * Storing the comment for sentiment analysis
+ *
+ * @param profile the user's comment
+ */
 void comment(PersonalityProfile &profile)
 {
     write("Your comment about the results (You can enter to skip this part): ");
@@ -371,19 +425,16 @@ enum menu_option
     EXIT,
 };
 
-// Components of user to store
-enum user_component
-{
-    NAME,
-    PERSONALITY,
-    TEMPERAMENT,
-    TAROT_CARD,
-    COMMENT,
-};
-
-// Main function
+/**
+ * This is where the program starts
+ * 
+ * @param argc the number of command-line arguments passed to the program
+ * @param argv an array of strings containing command-line arguments
+ * @returns wait for successful execution
+ */
 int main(int argc, char *argv[])
 {
+    // Creating a CSV file with the appending mode
     ofstream WriteFile("user_list.csv", ios::app);
     menu_option option = ADD;
     int number = 0;
@@ -411,6 +462,7 @@ int main(int argc, char *argv[])
             display_splashkit_tarot(new_user);
             comment(new_user);
             user_list.push_back(new_user);
+            // Check whether there is the CSV file to write
             if (WriteFile.is_open())
             {
                 WriteFile << new_user.name << "," << new_user.personality << "," << new_user.temperament << "," << new_user.tarot_card << "," << new_user.comment << endl;
@@ -428,12 +480,16 @@ int main(int argc, char *argv[])
             write_line();
             unordered_map<string, vector<PersonalityProfile>> user_map;
             string line;
+            // Reading the CSV file
             ifstream ReadFile("user_list.csv");
+            // Check whether there is the CSV file to write
             if (ReadFile.is_open())
             {
+                // Cascading each line of an user's information
                 while (getline(ReadFile, line))
                 {
                     vector<string> user_info;
+                    // Put substrings into each category
                     while (line.find(",") != string::npos)
                     {
                         user_info.push_back(line.substr(0, line.find(",")));
@@ -449,6 +505,7 @@ int main(int argc, char *argv[])
             {
                 write_line("Unable to open the file!");
             }
+            // Check whether there is a match in the name search
             if (user_map.find(search) == user_map.end())
             {
                 write_line("User not found.");
@@ -479,28 +536,27 @@ int main(int argc, char *argv[])
             break;
         }
     } while (option != EXIT);
-    // embedding python
+    // Embedding the Python file to finish the data analysis task
     write_line();
     write_line("Showing statistics...");
     FILE *fp = nullptr;
-
     PyStatus status;
     PyConfig config;
     PyConfig_InitPythonConfig(&config);
-    
+    // Configuring the Python environment
     status = PyConfig_SetBytesString(&config, &config.program_name, argv[0]);
     if (PyStatus_Exception(status))
     {
         goto exception;
     }
-
+    // Initializing the Python environment
     status = Py_InitializeFromConfig(&config);
     if (PyStatus_Exception(status))
     {
         goto exception;
     }
     PyConfig_Clear(&config);
-
+    // Accessing to read the HD1.py file
     fp = fopen("HD1.py", "r");
     if (fp != nullptr)
     {
@@ -511,13 +567,14 @@ int main(int argc, char *argv[])
     {
         goto exception;
     }
-
+    // Exiting the Python program
     if (Py_FinalizeEx() < 0)
     {
         exit(120);
     }
     return 0;
 
+// Printing the error message when failing to configure or initialize
 exception:
     PyConfig_Clear(&config);
     Py_ExitStatusException(status);
