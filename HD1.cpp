@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
             {
                 const vector<PersonalityProfile> found_user = user_map[search];
                 write_line("Found " + to_string(found_user.size()) + " user(s) with the name " + search + "!");
-                for (const PersonalityProfile user : found_user)
+                for (const PersonalityProfile &user : found_user)
                 {
                     write_line("User: " + user.name);
                     write_line("Personality: " + user.personality);
