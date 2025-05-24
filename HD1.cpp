@@ -89,6 +89,7 @@ struct PersonalityProfile
         comment = "";
         num_temperament = SJ;
     }
+    // for storing the user's information in the CSV file
     PersonalityProfile(string name, string personality, string temperament, string tarot_card, string comment)
     {
         this->name = name;
@@ -110,7 +111,7 @@ enum user_component
 /**
  * Validate a user's name which contains no numbers
  *
- * @param profile the user's information
+ * @param profile the user's name
  */
 void user_name(PersonalityProfile &profile)
 {
